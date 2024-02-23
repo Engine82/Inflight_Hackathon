@@ -22,6 +22,9 @@ engine = create_engine("sqlite:///database.db", echo=True)
 session_factory = sessionmaker(bind=engine)
 db = session_factory()
 
+# Constants
+MOUNTAINS = ['Attitash', 'Cannon', 'Crotched', 'Heavenly', 'Jay', 'Kirkwood', 'MtSnow', 'Northstar', 'Okemo', 'Ragged', 'Sierra', 'Sunapee', 'Wildcat']
+
 
 # HOME
 @app.route("/", methods=["GET", "POST"])
@@ -71,7 +74,6 @@ def login():
         return redirect("/")
 
     else:
-        
         return render_template("login.html")
 
 
@@ -97,7 +99,7 @@ def add():
         if hours == "":
             return render_template("error.html", error="Enter Hours")
 
-
+        # Save day's stats in db
         stmt = insert(Days).values(
             user = session['user_id'],
             mountain = mtn,
@@ -106,7 +108,6 @@ def add():
         )
         db.execute(stmt)
         db.commit()
-
 
         return redirect("/")
 
@@ -117,4 +118,29 @@ def add():
 # Stats:
 @app.route("/stats", methods=["GET"])
 def stats():
+
+    # Query db for user's stats
+    stmt = select(
+        Days.mountain,
+        Days.date,
+        Days.hours
+    ).where(Days.user == session['user_id'])
+    results = db.execute(stmt)
+    rslt = results.mappings().all()
+    print(rslt)
+
+    # Get days at each mountain
+    mtns = {}
+    for mountain in MOUNTAINS:
+        mtns[mountain] = 0
+
+    for entry in rslt:
+        for key in mtns:
+            if key == entry['mountain']:
+                mtns[key] += 1
+    print(mtns)
+    
+         
+        
+
     return render_template("stats.html")
