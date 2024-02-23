@@ -5,7 +5,9 @@ from flask_session import Session
 from sqlalchemy import create_engine, insert, join, select, text, update
 from sqlalchemy.orm import sessionmaker
 
-from db_setup import Base, Users
+from db_setup import Base, Users, Days
+
+from datetime import datetime
 
 # Configure app
 app = Flask(__name__)
@@ -73,3 +75,46 @@ def login():
         return render_template("login.html")
 
 
+# Add day:
+@app.route("/add", methods=["GET", "POST"])
+def add():
+    if request.method == "POST":
+
+        mtn = request.form.get("mtn")
+        print(mtn)
+        if mtn == str(0):
+            return render_template("error.html", error="Select Mountain")
+        
+        date = request.form.get("date")
+        print(date)
+        if date == "":
+            return render_template("error.html", error="Enter Date")
+        new_date = datetime.strptime(date, '%Y-%m-%d')
+        print(new_date)
+
+        hours = request.form.get("hours")
+        print(hours)
+        if hours == "":
+            return render_template("error.html", error="Enter Hours")
+
+
+        stmt = insert(Days).values(
+            user = session['user_id'],
+            mountain = mtn,
+            date = new_date,
+            hours = hours
+        )
+        db.execute(stmt)
+        db.commit()
+
+
+        return redirect("/")
+
+    else:
+        return render_template("add.html")
+
+
+# Stats:
+@app.route("/stats", methods=["GET"])
+def stats():
+    return render_template("stats.html")

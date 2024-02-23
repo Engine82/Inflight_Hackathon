@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import wraps
 from flask import redirect, session
 
@@ -19,3 +20,12 @@ class Users (Base):
     password: Mapped[str]
     fName: Mapped[str]
     lName: Mapped[str]
+
+class Days (Base):
+    __tablename__ = "days"
+
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
+    user: Mapped[int]
+    mountain: Mapped[str]
+    date: Mapped[datetime]
+    hours: Mapped[int]
