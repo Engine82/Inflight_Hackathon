@@ -52,8 +52,11 @@ def login():
             select(Users.username, Users.password, Users.id)
             .where(Users.username == username)
         )
-        usr_data = user_data.mappings().all()[0]
-        print(usr_data)
+        try: 
+            usr_data = user_data.mappings().all()[0]
+
+        except:
+            return render_template("error.html", error="User not found in db")
 
         if username != usr_data['username']:
             return render_template("error.html", error="Username invalid")
@@ -66,5 +69,5 @@ def login():
         return redirect("/")
 
     else:
-
+        
         return render_template("login.html")
