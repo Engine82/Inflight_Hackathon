@@ -5,6 +5,8 @@ from flask_session import Session
 from sqlalchemy import create_engine, insert, join, select, text, update
 from sqlalchemy.orm import sessionmaker
 
+from db_setup import Base, Users
+
 # Configure app
 app = Flask(__name__)
 
@@ -34,8 +36,35 @@ def index():
 # Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if not session.get("user_id"):
-        return render_template("login.html")
-    
-    else:
+    if request.method == "POST":
+        
+        # get user inputs
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if not username:
+            return render_template("error.html", error="Username required")
+
+        if not password:
+            return render_template("error.html", error="Password required")
+
+        user_data = db.execute(
+            select(Users.username, Users.password, Users.id)
+            .where(Users.username == username)
+        )
+        usr_data = user_data.mappings().all()[0]
+        print(usr_data)
+
+        if username != usr_data['username']:
+            return render_template("error.html", error="Username invalid")
+
+        if password != usr_data['password']:
+            return render_template("error.html", error="Password invalid")
+
+        session['user_id'] = usr_data['id']
+
         return redirect("/")
+
+    else:
+
+        return render_template("login.html")
