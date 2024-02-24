@@ -139,8 +139,10 @@ def stats():
             if key == entry['mountain']:
                 mtns[key] += 1
     print(mtns)
-    
-         
+
+    sorted_mtns = dict(sorted(mtns.items(), key=lambda item: item[1]))
+    print(sorted_mtns)
+    print(list(sorted_mtns)[-1])
         
 
     return render_template("stats.html")
